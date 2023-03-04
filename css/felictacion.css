@@ -1,0 +1,25 @@
+body {
+    background-image: url(/img/granja.jpg);
+    background-size: cover;
+    margin: 0;
+    padding: 0;
+}
+
+h1 {
+    color: rgb(175, 20, 175);
+    font-family: 'Coming Soon', cursive;
+    font-size: 100px;
+    text-align: center;
+}
+
+input {
+    color: rgb(175, 20, 175);
+    background-color: rgb(135, 194, 233);
+    font-family: 'Coming Soon', cursive;
+    font-size: 50px;
+    align-self: center;
+}
+
+div {
+    text-align: center;
+}
