@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>C R E D I T O S</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    <style>
+
+     #titulo {
+        font-size: 100px;
+        text-align: center;
+        position: absolute;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 10;
+        color: rgb(47, 0, 255);
+        margin-top: 30px;
+      }
+
+      #subtitulo {
+        font-size: 26px;
+        font-weight: bold;
+        text-align: center;
+        position: absolute;
+        top: 200px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 10;
+      }
+   
+    </style>
+  </head>
+  <body>
+
+    <h2 id="titulo">CREDITOS</h2>
+    <h1 id="subtitulo">INTEGRANTES: <br> Javier Guerrero Carrera <br>María Montserrat Flores García <br>Luis Octavio Jimenez Cortes <br>Fatima del Rocío Martínez Dávila
+    <br>MATERIA: Web <br> UNIVERSIDAD: UAA <br>CARRERA: ISC <br>SEMESTRE Y GRUPO: 6 "C" <br>FECHA: 04/03/2023 </h1>
+    
+    <canvas id="miCanvas" width="1350" height="630"></canvas>
+
+  
+
+    <script>
+      const canvas = document.getElementById("miCanvas");
+      const ctx = canvas.getContext("2d");
+
+      const imagenFondo = new Image();
+      imagenFondo.onload = function() {
+        ctx.drawImage(imagenFondo, 0, 0, canvas.width, canvas.height);
+      }
+      imagenFondo.src = "img/fondo.jpg";
+
+   </script>
+
+<button type="button" class="btn btn-warning" onclick="location.href='index.html'">Salir</button>
+
+  </body>
+</html>

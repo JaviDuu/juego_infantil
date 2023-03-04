@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="css/juego.css">
+    <script src="js/juego.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <title>Document</title>
+</head>
+<body>
+
+    <!--boton de musica-->
+    <audio id="audio">
+        <source src="sfx/cancion.mp3" type="audio/mpeg">
+    </audio>
+  
+    <button id="playPauseBTN" onclick="playPause()">Play &#9658;</button>
+    &nbsp;
+    &nbsp;
+
+    <!--temporizador 00-->
+    <div class="quiz-time" style="display: flex; justify-content: center; align-items: center; background-color: blueviolet;">
+        <div class="timer">
+            <span id="minutes">00</span>:<span id="seconds">00</span>
+        </div>
+    </div>
+
+    <canvas id="lienzo" width="1500" height="700"></canvas>
+
+    <section id="cajaimagenes">
+        <img id="1" src="img/1.png">
+        <img id="2" src="img/2.png">
+        <img id="3" src="img/3.png">
+        <img id="4" src="img/4.png">
+        <img id="5" src="img/5.png">
+        <img id="6" src="img/6.png">
+    </section>
+    
+
+<script>
+    var puntaje= 0;
+    var canvas = document.getElementById("lienzo");
+    var lienzo = canvas.getContext("2d");
+
+    lienzo.fillStyle = "blue";
+	lienzo.clearRect(0, 0, canvas.width, 20);
+	lienzo.font = "bold 12px Courier";
+	lienzo.fillText("SCORE: " + puntaje, 10, 20);
+
+    // se crea el array con las imagenes con su posicion predeterminada 
+    var images = [
+        {src: "img/gallo.png", nom:6, x: 100, y: 400},
+        {src: "img/borrego.png", nom:3, x: 400, y: 500},
+        {src: "img/vaca.png", nom: 1, x: 900, y: 300},
+        {src: "img/pato.png", nom: 2, x: 400, y: 300},
+        {src: "img/gallina.png", nom:5, x: 700, y: 500},
+        {src: "img/caballo.png", nom:4, x: 1000, y: 500}
+    ];
+
+    function shuffleImages(images) {    
+      for (var i = 0; i <6; i++) {
+
+        var j = Math.floor(Math.random() * (i + 1));
+        
+        var tempX = images[i].x;
+        var tempY = images[i].y;
+        images[i].x = images[j].x;
+        images[i].y = images[j].y;
+        images[j].x = tempX;
+        images[j].y = tempY;
+      }
+    }
+    /*
+    function shuffleImages(images) {    
+      for (var i = images.length - 1; i >= 0; i--) {
+
+        var j = Math.floor(Math.random() * (i + 1));
+        
+        var tempX = images[i].x;
+        var tempY = images[i].y;
+        images[i].x = images[j].x;
+        images[i].y = images[j].y;
+        images[j].x = tempX;
+        images[j].y = tempY;
+      }
+    }
+    */
+    shuffleImages(images);
+
+    console.log(images);
+
+    images.forEach(function(image) {
+        var img = new Image();
+        img.src = image.src;
+        img.onload = function () {
+            lienzo.drawImage(img, image.x, image.y, 300, 150);
+        }
+    });
+
+    // randomize order of images in section
+var cajaimagenes = document.getElementById("cajaimagenes");
+var imagesArray = Array.from(cajaimagenes.children);
+imagesArray.sort(() => Math.random() - 0.5);
+imagesArray.forEach((img) => cajaimagenes.appendChild(img));
+
+    var boxes = document.querySelectorAll(".box");
+
+    boxes.forEach(function(box) {
+        box.addEventListener("dragstart", function(event) {
+            event.dataTransfer.setData("text", event.target.id);
+        });
+    });
+
+    canvas.addEventListener("dragover", function(event) {
+        event.preventDefault();
+    });
+
+    canvas.addEventListener("drop", function(event) {
+        event.preventDefault();
+        var data = event.dataTransfer.getData("text");
+        var box = document.getElementById(data);
+        var rect = canvas.getBoundingClientRect();
+        var x = event.clientX - rect.left - box.offsetWidth / 2;
+        var y = event.clientY - rect.top - box.offsetHeight / 2;
+        lienzo.fillText(box.innerHTML, x, y);
+    });
+
+    function iniciar(){
+    var imagenes = document.querySelectorAll('#cajaimagenes > img');
+    for(var i = 0; i < imagenes.length; i++){
+        imagenes[i].addEventListener('dragstart', arrasrado, false);
+        imagenes[i].addEventListener('dragend', finalizado, false);
+    }
+    soltar = document.getElementById('lienzo');
+    lienzo = soltar.getContext('2d');
+    soltar.addEventListener('dragenter', eventoEnter, false);
+    soltar.addEventListener('dragover', eventoOver, false);
+    soltar.addEventListener('drop', soltado, false);
+}
+
+function eventoEnter(e){
+    console.log("soy el evento dragenter");
+    e.preventDefault();
+}
+
+function eventoOver(e){
+    console.log("soy el evento dragover");
+    e.preventDefault();
+}
+
+function finalizado(e){
+    elemento = e.target;
+    elemento.style.visibility = "hidden";
+}
+
+function arrasrado(e){
+    elemento = e.target;
+    e.dataTransfer.setData('Text', elemento.getAttribute('id'));
+    e.dataTransfer.setDragImage(e.target, 0, 0);
+}
+
+function soltado(e){
+    e.preventDefault();
+    var id = e.dataTransfer.getData('text');
+    var elemento = document.getElementById(id);
+    var posx = e.pageX - soltar.offsetLeft;
+    var posy = e.pageY - soltar.offsetTop;
+
+    if( (posx>=100 && posx<=400) && (posy>=400 && posy<=550) ){
+        
+        xAux = 100;
+        yAux = 400;
+
+        for (var i = 1; i <= 6; i++) { //recorremos por todo el array hasta encontrar cual es la imagen que se esta poniendo en estas coordenadas
+            if(images[i-1].x == xAux && images[i-1].y == yAux){ // cuando las coordenadas coincidan, entonces entramos
+                if(id==images[i-1].nom){ //y comparamos si la etiqueta puesta es correcto respecto a la imagen
+                    //puntos++;
+                    puntaje +=100;
+                    lienzo.fillStyle = "blue";
+                    lienzo.clearRect(0, 0, canvas.width, 20);
+                    lienzo.font = "bold 12px Courier";
+                    lienzo.fillText("SCORE: " + puntaje, 10, 20);
+
+                    console.log("Correcto");
+                    console.log(id);
+                    console.log(images[i-1].nom);
+                    lienzo.drawImage(elemento, posx, posy);
+                    if(images[i-1].nom == 1){
+                        var audio = new Audio('sfx/vaca.mp3');
+                        audio.play();
+                    }else if(images[i-1].nom == 2){
+                        var audio = new Audio('sfx/pato.mp3');
+                        audio.play();
+                    }else if(images[i-1].nom == 3){
+                        var audio = new Audio('sfx/borrego.mp3');
+                        audio.play();
+                    }else if(images[i-1].nom == 4){
+                        var audio = new Audio('sfx/caballo.mp3');
+                        audio.play();
+                    }else if(images[i-1].nom == 5){
+                        var audio = new Audio('sfx/gallina.mp3');
+                        audio.play();
+                    }else if(images[i-1].nom == 6){
+                        var audio = new Audio('sfx/gallo.mp3');
+                        audio.play();
+                    }
+                }
+                else{
+                    puntaje -=50;
+                    lienzo.fillStyle = "blue";
+                    lienzo.clearRect(0, 0, canvas.width, 20);
+                    lienzo.font = "bold 12px Courier";
+                    lienzo.fillText("SCORE: " + puntaje, 10, 20);
+
+                    console.log("Incorrecto");
+                    var audio = new Audio('sfx/error.mp3');
+                    audio.play();
+                    console.log(id);
+                    console.log(images[i-1].nom);
+                }
+            }
+        }
+        
+    }
+    else if( (posx>=400 && posx<=700) && (posy>=500 && posy<=650) ){
+
+        xAux = 400;
+        yAux = 500;
+
+        for (var i = 1; i <= 6; i++) { //recorremos por todo el array hasta encontrar cual es la imagen que se esta poniendo en estas coordenadas
+            if(images[i-1].x == xAux && images[i-1].y == yAux){ // cuando las coordenadas coincidan, entonces entramos
+                if(id==images[i-1].nom){ //y comparamos si la etiqueta puesta es correcto respecto a la imagen
+                    //puntos++;
+                    puntaje +=100;
+                    lienzo.fillStyle = "blue";
+                    lienzo.clearRect(0, 0, canvas.width, 20);
+                    lienzo.font = "bold 12px Courier";
+                    lienzo.fillText("SCORE: " + puntaje, 10, 20);
+
+                    console.log("Correcto");
+                    console.log(id);
+                    console.log(images[i-1].nom);
+                    lienzo.drawImage(elemento, posx, posy);
+                    if(images[i-1].nom == 1){
+                        var audio = new Audio('sfx/vaca.mp3');
+                        audio.play();
+                    }else if(images[i-1].nom == 2){
+                        var audio = new Audio('sfx/pato.mp3');
+                        audio.play();
+                    }else if(images[i-1].nom == 3){
+                        var audio = new Audio('sfx/borrego.mp3');
+                        audio.play();
+                    }else if(images[i-1].nom == 4){
+                        var audio = new Audio('sfx/caballo.mp3');
+                        audio.play();
+                    }else if(images[i-1].nom == 5){
+                        var audio = new Audio('sfx/gallina.mp3');
+                        audio.play();
+                    }else if(images[i-1].nom == 6){
+                        var audio = new Audio('sfx/gallo.mp3');
+                        audio.play();
+                    }
+                }
+                else{
+                    puntaje -=50;
+                    lienzo.fillStyle = "blue";
+                    lienzo.clearRect(0, 0, canvas.width, 20);
+                    lienzo.font = "bold 12px Courier";
+                    lienzo.fillText("SCORE: " + puntaje, 10, 20);
+
+                    console.log("Incorrecto");
+                    var audio = new Audio('sfx/error.mp3');
+                    audio.play();
+                    console.log(id);
+                    console.log(images[i-1].nom);
+                }
+            }
+        }
+    }
+    else if( (posx>=900 && posx<=1100) && (posy>=300 && posy<=450) ){
+
+        xAux = 900;
+        yAux = 300;
+
+        for (var i = 1; i <= 6; i++) { //recorremos por todo el array hasta encontrar cual es la imagen que se esta poniendo en estas coordenadas
+            if(images[i-1].x == xAux && images[i-1].y == yAux){ // cuando las coordenadas coincidan, entonces entramos
+                if(id==images[i-1].nom){ //y comparamos si la etiqueta puesta es correcto respecto a la imagen
+                    //puntos++;
+                    puntaje +=100;
+                    lienzo.fillStyle = "blue";
+                    lienzo.clearRect(0, 0, canvas.width, 20);
+                    lienzo.font = "bold 12px Courier";
+                    lienzo.fillText("SCORE: " + puntaje, 10, 20);
+
+                    console.log("Correcto");
+                    console.log(id);
+                    console.log(images[i-1].nom);
+                    lienzo.drawImage(elemento, posx, posy);
+                    if(images[i-1].nom == 1){
+                        var audio = new Audio('sfx/vaca.mp3');
+                        audio.play();
+                    }else if(images[i-1].nom == 2){
+                        var audio = new Audio('sfx/pato.mp3');
+                        audio.play();
+                    }else if(images[i-1].nom == 3){
+                        var audio = new Audio('sfx/borrego.mp3');
+                        audio.play();
+                    }else if(images[i-1].nom == 4){
+                        var audio = new Audio('sfx/caballo.mp3');
+                        audio.play();
+                    }else if(images[i-1].nom == 5){
+                        var audio = new Audio('sfx/gallina.mp3');
+                        audio.play();
+                    }else if(images[i-1].nom == 6){
+                        var audio = new Audio('sfx/gallo.mp3');
+                        audio.play();
+                    }
+                }
+                else{
+                    puntaje -=50;
+                    lienzo.fillStyle = "blue";
+                    lienzo.clearRect(0, 0, canvas.width, 20);
+                    lienzo.font = "bold 12px Courier";
+                    lienzo.fillText("SCORE: " + puntaje, 10, 20);
+
+                    console.log("Incorrecto");
+                    var audio = new Audio('sfx/error.mp3');
+                    audio.play();
+                    console.log(id);
+                    console.log(images[i-1].nom);
+                }
+            }
+        }
+    }
+    else if( (posx>=400 && posx<=700) && (posy>=300 && posy<=450) ){
+
+        xAux = 400;
+        yAux = 300;
+
+        for (var i = 1; i <= 6; i++) { //recorremos por todo el array hasta encontrar cual es la imagen que se esta poniendo en estas coordenadas
+            if(images[i-1].x == xAux && images[i-1].y == yAux){ // cuando las coordenadas coincidan, entonces entramos
+                if(id==images[i-1].nom){ //y comparamos si la etiqueta puesta es correcto respecto a la imagen
+                    //puntos++;
+                    puntaje +=100;
+                    lienzo.fillStyle = "blue";
+                    lienzo.clearRect(0, 0, canvas.width, 20);
+                    lienzo.font = "bold 12px Courier";
+                    lienzo.fillText("SCORE: " + puntaje, 10, 20);
+
+                    console.log("Correcto");
+                    console.log(id);
+                    console.log(images[i-1].nom);
+                    lienzo.drawImage(elemento, posx, posy);
+                    if(images[i-1].nom == 1){
+                        var audio = new Audio('sfx/vaca.mp3');
+                        audio.play();
+                    }else if(images[i-1].nom == 2){
+                        var audio = new Audio('sfx/pato.mp3');
+                        audio.play();
+                    }else if(images[i-1].nom == 3){
+                        var audio = new Audio('sfx/borrego.mp3');
+                        audio.play();
+                    }else if(images[i-1].nom == 4){
+                        var audio = new Audio('sfx/caballo.mp3');
+                        audio.play();
+                    }else if(images[i-1].nom == 5){
+                        var audio = new Audio('sfx/gallina.mp3');
+                        audio.play();
+                    }else if(images[i-1].nom == 6){
+                        var audio = new Audio('sfx/gallo.mp3');
+                        audio.play();
+                    }
+                }
+                else{
+                    puntaje -=50;
+                    lienzo.fillStyle = "blue";
+                    lienzo.clearRect(0, 0, canvas.width, 20);
+                    lienzo.font = "bold 12px Courier";
+                    lienzo.fillText("SCORE: " + puntaje, 10, 20);
+
+                    console.log("Incorrecto");
+                    var audio = new Audio('sfx/error.mp3');
+                    audio.play();
+                    console.log(id);
+                    console.log(images[i-1].nom);
+                }
+            }
+        }
+    }
+    else if( (posx>=700 && posx<=1000) && (posy>=500 && posy<=650) ){
+
+        xAux = 700;
+        yAux = 500;
+
+        for (var i = 1; i <= 6; i++) { //recorremos por todo el array hasta encontrar cual es la imagen que se esta poniendo en estas coordenadas
+            if(images[i-1].x == xAux && images[i-1].y == yAux){ // cuando las coordenadas coincidan, entonces entramos
+                if(id==images[i-1].nom){ //y comparamos si la etiqueta puesta es correcto respecto a la imagen
+                   //puntos++;
+                    puntaje +=100;
+                    lienzo.fillStyle = "blue";
+                    lienzo.clearRect(0, 0, canvas.width, 20);
+                    lienzo.font = "bold 12px Courier";
+                    lienzo.fillText("SCORE: " + puntaje, 10, 20);
+
+                    console.log("Correcto");
+                    console.log(id);
+                    console.log(images[i-1].nom);
+                    lienzo.drawImage(elemento, posx, posy);
+                    if(images[i-1].nom == 1){
+                        var audio = new Audio('sfx/vaca.mp3');
+                        audio.play();
+                    }else if(images[i-1].nom == 2){
+                        var audio = new Audio('sfx/pato.mp3');
+                        audio.play();
+                    }else if(images[i-1].nom == 3){
+                        var audio = new Audio('sfx/borrego.mp3');
+                        audio.play();
+                    }else if(images[i-1].nom == 4){
+                        var audio = new Audio('sfx/caballo.mp3');
+                        audio.play();
+                    }else if(images[i-1].nom == 5){
+                        var audio = new Audio('sfx/gallina.mp3');
+                        audio.play();
+                    }else if(images[i-1].nom == 6){
+                        var audio = new Audio('sfx/gallo.mp3');
+                        audio.play();
+                    }
+                }
+                else{
+                    puntaje -=50;
+                    lienzo.fillStyle = "blue";
+                    lienzo.clearRect(0, 0, canvas.width, 20);
+                    lienzo.font = "bold 12px Courier";
+                    lienzo.fillText("SCORE: " + puntaje, 10, 20);
+
+                    console.log("Incorrecto");
+                    var audio = new Audio('sfx/error.mp3');
+                    audio.play();
+                    console.log(id);
+                    console.log(images[i-1].nom);
+                }
+            }
+        }
+    }
+    else if( (posx>=1000 && posx<=1300) && (posy>=500 && posy<=650) ){
+
+        xAux = 1000;
+        yAux = 500;
+
+        for (var i = 1; i <= 6; i++) { //recorremos por todo el array hasta encontrar cual es la imagen que se esta poniendo en estas coordenadas
+            if(images[i-1].x == xAux && images[i-1].y == yAux){ // cuando las coordenadas coincidan, entonces entramos
+                if(id==images[i-1].nom){ //y comparamos si la etiqueta puesta es correcto respecto a la imagen
+                    //puntos++;
+                    puntaje +=100;
+                    lienzo.fillStyle = "blue";
+                    lienzo.clearRect(0, 0, canvas.width, 20);
+                    lienzo.font = "bold 12px Courier";
+                    lienzo.fillText("SCORE: " + puntaje, 10, 20);
+
+                    console.log("Correcto");
+                    console.log(id);
+                    console.log(images[i-1].nom);
+                    lienzo.drawImage(elemento, posx, posy);
+                    if(images[i-1].nom == 1){
+                        var audio = new Audio('sfx/vaca.mp3');
+                        audio.play();
+                    }else if(images[i-1].nom == 2){
+                        var audio = new Audio('sfx/pato.mp3');
+                        audio.play();
+                    }else if(images[i-1].nom == 3){
+                        var audio = new Audio('sfx/borrego.mp3');
+                        audio.play();
+                    }else if(images[i-1].nom == 4){
+                        var audio = new Audio('sfx/caballo.mp3');
+                        audio.play();
+                    }else if(images[i-1].nom == 5){
+                        var audio = new Audio('sfx/gallina.mp3');
+                        audio.play();
+                    }else if(images[i-1].nom == 6){
+                        var audio = new Audio('sfx/gallo.mp3');
+                        audio.play();
+                    }
+                }
+                else{
+                    puntaje -=50;
+                    lienzo.fillStyle = "blue";
+                    lienzo.clearRect(0, 0, canvas.width, 20);
+                    lienzo.font = "bold 12px Courier";
+                    lienzo.fillText("SCORE: " + puntaje, 10, 20);
+
+                    console.log("Incorrecto");
+                    var audio = new Audio('sfx/error.mp3');
+                    audio.play();
+                    console.log(id);
+                    console.log(images[i-1].nom);
+                }
+            }
+        }
+    }
+    
+}
+
+
+window.addEventListener('load', iniciar, false);
+
+</script>
+
+<button type="button" class="btn btn-warning" onclick="location.href='index.html'">Salir</button>
+<button type="button" class="btn btn-warning" onclick="location.href='creditos.html'">Créditos</button>
+<script src="js/juego.js"></script>
+</body>
+</html>
